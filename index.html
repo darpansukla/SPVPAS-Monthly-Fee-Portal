@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>South Point Visual & Performing Arts School - Monthly Fee Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- html2canvas for Receipt Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', "Segoe UI", 'Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        iosBg: '#F9FAFB',
+                        iosCard: '#FFFFFF',
+                        iosGreen: '#10B981',
+                        iosGreenDark: '#059669',
+                        iosGray: '#6B7280',
+                        iosText: '#111827',
+                        iosBorder: '#E5E7EB'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #FFFFFF; color: #111827;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .mobile-container {
+            width: 100%; height: 100vh; height: 100dvh;
+            margin: 0 auto; background-color: #FFFFFF;
+            position: relative; display: flex; flex-direction: column; overflow: hidden;
+        }
+        @media (min-width: 640px) {
+            .mobile-container {
+                max-width: 480px; height: 100vh;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+                border-left: 1px solid #E5E7EB; border-right: 1px solid #E5E7EB;
+            }
+        }
+        .ios-card {
+            background: #FFFFFF; border: 1px solid #E5E7EB;
+            border-radius: 1.25rem; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.03);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes scaleUp {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .animate-scale-up { animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body class="flex justify-center items-center bg-white">
+
+    <div class="mobile-container">
+        
+        <!-- Toast Notification Bar -->
+        <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none translate-y-[-20px] max-w-[90%] w-full px-4">
+            <div id="toast-content" class="bg-[#111827] text-white text-sm font-medium py-3 px-4 rounded-2xl shadow-xl flex items-center justify-between border border-iosGreen/30">
+                <span id="toast-message">Notification message</span>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 1: SEARCH BY FIRST NAME ================= -->
+        <div id="screen-1" class="flex-1 flex flex-col p-5 overflow-y-auto no-scrollbar transition-opacity duration-300 bg-white">
+            <!-- Header Section -->
+            <div class="pt-6 pb-3 text-center">
+                <div class="inline-flex p-3 bg-iosGreen/10 rounded-2xl text-iosGreen mb-2 shadow-sm">
+                    <i class="fa-solid fa-paintbrush text-2xl"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-iosText">South Point Visual & Performing Arts School</h1>
+                <p class="text-xs text-iosGray mt-1">Monthly Fee Portal</p>
+            </div>
+
+            <!-- Search Box Card -->
+            <div class="ios-card p-5 space-y-4 mt-3 relative bg-white">
+                <div>
+                    <label class="block text-xs font-semibold text-iosGray uppercase tracking-wider mb-1.5">Search by First Name</label>
+                    <input type="text" id="search-query" oninput="handleLiveInput(this.value)" placeholder="Type exact first name..." class="w-full bg-iosBg border border-iosBorder rounded-xl px-4 py-3.5 text-iosText text-base focus:outline-none focus:border-iosGreen transition-colors">
+                </div>
+
+                <!-- Live Suggestion Dropdown -->
+                <div id="suggestions-dropdown" class="hidden absolute left-5 right-5 top-28 bg-white border border-iosBorder rounded-2xl shadow-2xl z-20 overflow-hidden"></div>
+
+                <button onclick="handleNextClick()" id="search-btn" class="w-full bg-iosGreen hover:bg-iosGreenDark text-white font-semibold py-3.5 rounded-xl active:scale-95 transition-transform flex items-center justify-center space-x-2 shadow-lg shadow-iosGreen/25">
+                    <span>Next</span>
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+            </div>
+            
+            <!-- Footer Branding -->
+            <div class="mt-auto pt-6 pb-2 text-center text-[11px] text-iosGray font-medium">
+                Designed & Developed by Darpan Sukla
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 2: PROFILE & FEE DASHBOARD ================= -->
+        <div id="screen-2" class="flex-1 flex flex-col hidden p-5 overflow-y-auto no-scrollbar bg-white">
+            <!-- Navigation Header -->
+            <div class="flex items-center justify-between pb-3">
+                <button onclick="switchScreen(1)" class="p-2 -ml-2 rounded-full text-iosGreen flex items-center text-sm font-semibold active:scale-95 transition-transform">
+                    <i class="fa-solid fa-chevron-left mr-1.5 text-xs"></i> Back
+                </button>
+                <span class="text-sm font-bold text-iosText">Fee Summary & Payment</span>
+                <div class="w-10"></div>
+            </div>
+
+            <!-- Student Photo Avatar Preview Section -->
+            <div class="flex justify-center mb-3">
+                <div class="relative">
+                    <div class="w-24 h-24 rounded-full bg-iosBg border-2 border-iosGreen/40 overflow-hidden shadow-md flex items-center justify-center">
+                        <img id="disp-student-photo" src="" alt="Student Photo" class="w-full h-full object-cover hidden" onload="this.classList.remove('hidden'); document.getElementById('photo-placeholder').classList.add('hidden');" onerror="this.classList.add('hidden'); document.getElementById('photo-placeholder').classList.remove('hidden');">
+                        <div id="photo-placeholder" class="text-iosGray flex flex-col items-center justify-center">
+                            <i class="fa-solid fa-user text-2xl mb-0.5"></i>
+                            <span class="text-[9px]">No Photo</span>
+                        </div>
+                    </div>
+                    <!-- Verified Checkmark Badge -->
+                    <div class="absolute bottom-0 right-0 w-7 h-7 bg-iosGreen rounded-full border-2 border-white text-white flex items-center justify-center shadow-sm text-xs">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Details Card -->
+            <div class="ios-card p-5 mb-3 border-l-4 border-l-iosGreen bg-white">
+                <div class="space-y-2.5">
+                    <div>
+                        <span class="text-[10px] font-bold text-iosGreen uppercase tracking-wider block">Institution Name</span>
+                        <h2 id="disp-school" class="text-sm font-bold text-iosText leading-tight">School Name</h2>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-iosGray uppercase tracking-wider block">Student Name</span>
+                        <h3 id="disp-name" class="text-xl font-extrabold text-iosText">Student Name</h3>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 pt-1 border-t border-iosBorder/60">
+                        <div>
+                            <span class="text-[10px] text-iosGray block">Fine Arts Class</span>
+                            <span id="disp-class" class="font-bold text-xs text-iosText">Class --</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-iosGray block">Mobile (WhatsApp)</span>
+                            <span id="disp-mobile" class="font-mono font-bold text-xs text-iosText">----------</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment History & Last Payment Card -->
+            <div id="payment-history-card" class="ios-card p-4 mb-3 bg-white space-y-2.5 hidden">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-iosGray uppercase tracking-wider">Payment History</span>
+                    <span id="last-payment-date" class="text-[10px] text-iosGreen font-bold bg-iosGreen/10 px-2 py-0.5 rounded-full">Last Paid: --</span>
+                </div>
+                
+                <!-- Cash vs Online Note -->
+                <div class="bg-iosBg p-2.5 rounded-xl border border-iosBorder text-[11px] text-iosGray flex items-start space-x-2">
+                    <i class="fa-solid fa-circle-info text-iosGreen text-xs mt-0.5 shrink-0"></i>
+                    <p>Note: This shows online payment data only. If you paid in cash, it won't show here, but your complete payment record is safely stored at the office. Both Cash and Online Payment records are maintained at the office—don't worry!</p>
+                </div>
+
+                <div id="transaction-history-list" class="space-y-2 max-h-36 overflow-y-auto pr-1 text-xs">
+                    <!-- Dynamically populated transaction rows -->
+                </div>
+            </div>
+
+            <!-- Fee Calculator & Month Selector -->
+            <div class="ios-card p-4 mb-3 bg-white space-y-3">
+                <h3 class="text-xs font-semibold text-iosGray uppercase tracking-wider">Select Fee Duration</h3>
+                <div class="grid grid-cols-6 gap-1.5" id="month-selectors">
+                    <button onclick="setMonths(1)" class="month-btn py-2 rounded-xl font-bold text-xs bg-iosGreen text-white shadow-sm transition-all" data-month="1">1</button>
+                    <button onclick="setMonths(2)" class="month-btn py-2 rounded-xl font-bold text-xs bg-iosBg text-iosText border border-iosBorder transition-all" data-month="2">2</button>
+                    <button onclick="setMonths(3)" class="month-btn py-2 rounded-xl font-bold text-xs bg-iosBg text-iosText border border-iosBorder transition-all" data-month="3">3</button>
+                    <button onclick="setMonths(4)" class="month-btn py-2 rounded-xl font-bold text-xs bg-iosBg text-iosText border border-iosBorder transition-all" data-month="4">4</button>
+                    <button onclick="setMonths(5)" class="month-btn py-2 rounded-xl font-bold text-xs bg-iosBg text-iosText border border-iosBorder transition-all" data-month="5">5</button>
+                    <button onclick="setMonths(6)" class="month-btn py-2 rounded-xl font-bold text-xs bg-iosBg text-iosText border border-iosBorder transition-all" data-month="6">6</button>
+                </div>
+
+                <div class="bg-iosBg p-3 rounded-xl space-y-1.5 border border-iosBorder">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-iosGray">Duration</span>
+                        <span id="summary-months" class="font-medium text-iosText">1 Month</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-iosGray">Per Month Fee</span>
+                        <span class="font-medium text-iosText">₹700</span>
+                    </div>
+                    <div class="pt-1.5 border-t border-iosBorder flex justify-between items-center text-sm">
+                        <span class="font-semibold text-iosText">Total Payable</span>
+                        <span id="summary-total" class="font-extrabold text-iosGreen text-base">₹700</span>
+                    </div>
+                </div>
+
+                <!-- UPI & QR Code Box -->
+                <div class="border border-iosBorder rounded-2xl p-3 flex flex-col items-center bg-white shadow-sm space-y-2.5">
+                    <p class="text-[11px] font-medium text-iosGray">Scan QR or Click Payment App Below</p>
+                    <div id="qrcode-box" class="p-2 bg-white rounded-xl border border-iosBorder flex items-center justify-center"></div>
+                    <div class="text-center w-full">
+                        <span class="text-[10px] text-iosGray block">UPI Remark Generated:</span>
+                        <span id="upi-remark-preview" class="text-[11px] font-mono font-bold text-iosText bg-iosBg px-2 py-0.5 rounded mt-0.5 inline-block max-w-full truncate border border-iosBorder">--</span>
+                    </div>
+
+                    <div class="w-full pt-1">
+                        <a id="upi-pay-link" href="#" class="w-full bg-iosGreen hover:bg-iosGreenDark text-white font-semibold py-3.5 px-4 rounded-xl text-center active:scale-95 transition-transform flex items-center justify-center space-x-2 shadow-sm text-sm">
+                            <i class="fa-solid fa-mobile-screen shrink-0 text-sm"></i>
+                            <span>Pay Direct via UPI App</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Mandatory Payment Proof Upload Section -->
+                <div class="border-2 border-dashed border-iosBorder rounded-2xl p-4 bg-iosBg/50 space-y-2 text-center">
+                    <div class="flex items-center justify-center space-x-1.5 text-iosText">
+                        <i class="fa-solid fa-receipt text-iosGreen text-sm"></i>
+                        <span class="text-xs font-bold uppercase tracking-wider">Upload Payment Proof Screenshot</span>
+                        <span class="text-red-500 font-bold">*</span>
+                    </div>
+                    <p class="text-[11px] text-iosGray">Required to generate and verify your fee receipt.</p>
+                    
+                    <input type="file" id="payment-proof-input" accept="image/*" onchange="handleProofUpload(event)" class="hidden">
+                    
+                    <div id="proof-upload-box" onclick="document.getElementById('payment-proof-input').click()" class="cursor-pointer bg-white border border-iosBorder rounded-xl py-3 px-4 flex items-center justify-center space-x-2 hover:border-iosGreen transition-colors shadow-sm">
+                        <i class="fa-solid fa-cloud-arrow-up text-iosGreen text-base"></i>
+                        <span id="proof-file-label" class="text-xs font-semibold text-iosText truncate">Tap to select screenshot image</span>
+                    </div>
+                    
+                    <!-- Image Preview Container -->
+                    <div id="proof-preview-container" class="hidden relative mt-2 inline-block">
+                        <img id="proof-preview-img" src="" alt="Proof Preview" class="w-20 h-20 object-cover rounded-xl border border-iosBorder shadow-sm">
+                        <button onclick="removeProof(event)" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirm Payment Button (Disabled until proof is uploaded) -->
+            <button id="generate-receipt-btn" onclick="confirmPaymentAndGenerateReceipt()" disabled class="w-full bg-gray-300 text-gray-500 font-semibold py-3.5 rounded-xl transition-all shadow-sm mb-3 text-sm flex items-center justify-center space-x-2 cursor-not-allowed">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Upload Proof to Generate Receipt</span>
+            </button>
+
+            <!-- Footer Branding -->
+            <div class="mt-auto pb-1 text-center text-[11px] text-iosGray font-medium">
+                Designed & Developed by Darpan Sukla
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 3: RECEIPT DISPLAY & DOWNLOAD ================= -->
+        <div id="screen-3" class="flex-1 flex flex-col hidden p-5 overflow-y-auto no-scrollbar bg-white">
+            <!-- Navigation Header -->
+            <div class="flex items-center justify-between pb-3">
+                <button onclick="switchScreen(2)" class="p-2 -ml-2 rounded-full text-iosGreen flex items-center text-sm font-semibold active:scale-95 transition-transform">
+                    <i class="fa-solid fa-chevron-left mr-1.5 text-xs"></i> Back
+                </button>
+                <span class="text-sm font-bold text-iosText">Fee Receipt</span>
+                <div class="w-10"></div>
+            </div>
+
+            <!-- HIDDEN RECEIPT TEMPLATE (Generated for Download) -->
+            <div id="receipt-printable-area" class="bg-white p-5 rounded-2xl shadow-xl border border-iosBorder hidden mb-4">
+                <div class="text-center pb-3 border-b border-iosBorder">
+                    <div class="inline-block p-2 bg-iosGreen/10 text-iosGreen rounded-full mb-1">
+                        <i class="fa-solid fa-check text-sm"></i>
+                    </div>
+                    <h2 class="text-base font-bold text-iosText">Fee Payment Receipt</h2>
+                    <p class="text-[10px] text-iosGray">South Point Visual & Performing Arts School</p>
+                </div>
+
+                <div class="py-3 space-y-2 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Receipt No:</span>
+                        <span id="rec-id" class="font-mono font-medium text-iosText">SPV-94821</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Date & Time:</span>
+                        <span id="rec-date" class="font-medium text-iosText">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Institution:</span>
+                        <span id="rec-school" class="font-bold text-iosText">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Student Name:</span>
+                        <span id="rec-name" class="font-bold text-iosText">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Class & Mobile:</span>
+                        <span id="rec-class-mob" class="font-medium text-iosText">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Months Paid:</span>
+                        <span id="rec-months" class="font-medium text-iosText">--</span>
+                    </div>
+                </div>
+
+                <div class="pt-2.5 border-t border-iosBorder flex justify-between items-center">
+                    <span class="font-semibold text-iosText text-xs">Total Paid Amount</span>
+                    <span id="rec-total" class="font-bold text-sm text-iosGreen">₹0</span>
+                </div>
+
+                <div class="mt-4 pt-2 text-center border-t border-dashed border-iosBorder">
+                    <p class="text-[9px] text-iosGray">Verified Digital Computerized Payment Token with Proof • SPVPAS</p>
+                </div>
+            </div>
+
+            <!-- ON-SCREEN DISPLAY RECEIPT & ACTIONS -->
+            <div id="receipt-display-card" class="ios-card p-5 space-y-4 mb-4 animate-scale-up border-2 border-iosGreen/30 bg-white">
+                <div class="text-center pb-2 border-b border-iosBorder">
+                    <div class="w-10 h-10 bg-iosGreen/10 text-iosGreen rounded-full flex items-center justify-center mx-auto mb-1">
+                        <i class="fa-solid fa-check text-base"></i>
+                    </div>
+                    <h3 class="font-extrabold text-base text-iosText">Payment Receipt</h3>
+                    <p class="text-[11px] text-iosGreen font-medium">Verified & Successfully Recorded with Proof</p>
+                </div>
+
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Receipt No:</span>
+                        <span id="screen-rec-id" class="font-mono font-bold text-iosText">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Date:</span>
+                        <span id="screen-rec-date" class="font-medium text-iosText">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Institution:</span>
+                        <span id="screen-rec-school" class="font-bold text-iosText truncate max-w-[180px]">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Student:</span>
+                        <span id="screen-rec-name" class="font-bold text-iosText">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Class & Mobile:</span>
+                        <span id="screen-rec-class-mob" class="font-medium text-iosText">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-iosGray">Duration:</span>
+                        <span id="screen-rec-months" class="font-medium text-iosText">--</span>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-iosBorder flex justify-between items-center">
+                    <span class="font-semibold text-iosText text-sm">Total Paid Amount</span>
+                    <span id="screen-rec-total" class="font-extrabold text-lg text-iosGreen">₹0</span>
+                </div>
+
+                <div class="space-y-2 pt-1">
+                    <button onclick="downloadReceiptImage()" class="w-full bg-iosGreen text-white font-semibold py-3.5 rounded-xl active:scale-95 transition-transform flex items-center justify-center space-x-2 shadow-md text-sm">
+                        <i class="fa-solid fa-download text-xs"></i>
+                        <span>Download Receipt Image</span>
+                    </button>
+                    <!-- MULTIPLE TRANSACTION BUTTON -->
+                    <button onclick="startAnotherTransaction()" class="w-full bg-iosBg text-iosGreen font-semibold py-3.5 rounded-xl border-2 border-iosGreen/40 text-sm active:scale-95 transition-transform flex items-center justify-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Make Another Payment / Transaction</span>
+                    </button>
+                    <button onclick="resetToHome()" class="w-full bg-iosBg text-iosText font-semibold py-2.5 rounded-xl border border-iosBorder text-xs active:scale-95 transition-transform">
+                        Search Another Student
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer Branding -->
+            <div class="mt-auto pb-1 text-center text-[11px] text-iosGray font-medium">
+                Designed & Developed by Darpan Sukla
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const STUDENTS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR9MYoRpbaJg7oK3vqkTjfsm616eD9xvUeeE3DxTSzWCF5gCdBOdqfnQQbbwbnycXopvrScE5kg-3R6/pub?gid=0&single=true&output=csv";
+        const TRANSACTIONS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTAgXPEJxNw-EZFZRX_OMC8TlrszCNYx5UmbfPwjHbWYnD3JRoVHQwn9O-4mvuWxoE0JbSA51f-8nG4/pub?gid=0&single=true&output=csv";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymJx_Ngxxeomtkw-0K5TmFZeyEjg9puaQbd7aJIMk1tRcva5HVcV3dLRS-yAYP265pQg/exec";
+        
+        let studentsData = [];
+        let transactionsData = [];
+        let currentStudent = null;
+        let selectedMonthsCount = 1;
+        let generatedReceiptId = "";
+        let uploadedProofBase64 = null;
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const content = document.getElementById('toast-content');
+            document.getElementById('toast-message').innerText = message;
+            
+            content.className = isError 
+                ? "bg-[#EF4444] text-white text-sm font-medium py-3 px-4 rounded-2xl shadow-xl flex items-center justify-between border border-red-400"
+                : "bg-[#111827] text-white text-sm font-medium py-3 px-4 rounded-2xl shadow-xl flex items-center justify-between border border-iosGreen/30";
+
+            toast.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Helper function to format dates nicely like: "1st Jan, 2026, 10:00 AM"
+        function formatUserFriendlyDate(dateInput) {
+            let d = dateInput ? new Date(dateInput) : new Date();
+            if (isNaN(d.getTime())) {
+                d = new Date(); // fallback to now if unparseable
+            }
+
+            let day = d.getDate();
+            let suffix = "th";
+            if (day === 1 || day === 21 || day === 31) suffix = "st";
+            else if (day === 2 || day === 22) suffix = "nd";
+            else if (day === 3 || day === 23) suffix = "rd";
+
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            let monthStr = months[d.getMonth()];
+            let year = d.getFullYear();
+
+            let hours = d.getHours();
+            let minutes = d.getMinutes();
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            let minutesStr = minutes < 10 ? '0' + minutes : minutes;
+
+            return `${day}${suffix} ${monthStr}, ${year}, ${hours}:${minutesStr} ${ampm}`;
+        }
+
+        async function loadSheetData() {
+            try {
+                // Fetch Students Database
+                const resStudents = await fetch(STUDENTS_CSV_URL);
+                const csvStudentsText = await resStudents.text();
+                studentsData = parseCSV(csvStudentsText);
+
+                // Fetch Transactions Database
+                const resTx = await fetch(TRANSACTIONS_CSV_URL);
+                const csvTxText = await resTx.text();
+                transactionsData = parseCSV(csvTxText);
+            } catch (err) {
+                console.error("Failed to load spreadsheet data:", err);
+                showToast("Network warning: Unable to load live database.", true);
+            }
+        }
+
+        function parseCSV(text) {
+            let lines = text.split('\n');
+            let result = [];
+            if (lines.length === 0) return result;
+            let headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                let currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                let obj = {};
+                for (let j = 0; j < headers.length; j++) {
+                    let val = currentline[j] ? currentline[j].trim().replace(/^"|"$/g, '') : "";
+                    obj[headers[j]] = val;
+                }
+                
+                let rawPhoto = obj["Passport Photo URL"] || "";
+                if (rawPhoto.includes('drive.google.com')) {
+                    let fileIdMatch = rawPhoto.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawPhoto.match(/id=([a-zA-Z0-9_-]+)/);
+                    if (fileIdMatch && fileIdMatch[1]) {
+                        obj["Passport Photo URL"] = `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
+                    }
+                }
+
+                result.push(obj);
+            }
+            return result;
+        }
+
+        window.addEventListener('DOMContentLoaded', loadSheetData);
+
+        function switchScreen(screenNum) {
+            document.getElementById('screen-1').classList.add('hidden');
+            document.getElementById('screen-2').classList.add('hidden');
+            document.getElementById('screen-3').classList.add('hidden');
+
+            document.getElementById(`screen-${screenNum}`).classList.remove('hidden');
+        }
+
+        function maskMobile(mobileStr) {
+            let clean = String(mobileStr || "").trim();
+            if (clean.length >= 6) {
+                return clean.slice(0, 6) + "xxxx";
+            } else if (clean.length > 0) {
+                return clean + "xxxx";
+            }
+            return "xxxx";
+        }
+
+        function handleLiveInput(query) {
+            let q = query.trim().toLowerCase();
+            let dropdown = document.getElementById('suggestions-dropdown');
+            dropdown.innerHTML = "";
+
+            if (!q) {
+                dropdown.classList.add('hidden');
+                currentStudent = null;
+                return;
+            }
+
+            let match = studentsData.find(st => {
+                let fullName = (st["Student Name"] || "").trim().toLowerCase();
+                let firstName = fullName.split(" ")[0];
+                return firstName === q;
+            });
+
+            if (match) {
+                dropdown.classList.remove('hidden');
+                currentStudent = match;
+                let maskedMob = maskMobile(match["Mobile (WhatsApp)"]);
+                let item = document.createElement('div');
+                item.className = "p-3 bg-white hover:bg-iosBg cursor-pointer flex justify-between items-center text-xs";
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-full bg-iosBg overflow-hidden border border-iosBorder flex items-center justify-center flex-shrink-0">
+                            ${match["Passport Photo URL"] ? `<img src="${match["Passport Photo URL"]}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-[10px] text-iosGray"></i>`}
+                        </div>
+                        <div>
+                            <p class="font-bold text-iosText">${match["Student Name"]}</p>
+                            <p class="text-iosGray">${match["Institution"]} | Mob: ${maskedMob}</p>
+                        </div>
+                    </div>
+                    <span class="text-iosGreen font-semibold">Select</span>
+                `;
+                item.onclick = () => {
+                    document.getElementById('search-query').value = match["Student Name"];
+                    currentStudent = match;
+                    dropdown.classList.add('hidden');
+                };
+                dropdown.appendChild(item);
+            } else {
+                dropdown.classList.add('hidden');
+                currentStudent = null;
+            }
+        }
+
+        function handleNextClick() {
+            let queryInput = document.getElementById('search-query').value.trim().toLowerCase();
+
+            if (!queryInput) {
+                showToast("Please type a student first name.", true);
+                return;
+            }
+
+            if (!currentStudent) {
+                let found = studentsData.find(st => {
+                    let fullName = (st["Student Name"] || "").trim().toLowerCase();
+                    let firstName = fullName.split(" ")[0];
+                    return firstName === queryInput;
+                });
+                if (found) {
+                    currentStudent = found;
+                }
+            }
+
+            if (currentStudent) {
+                document.getElementById('suggestions-dropdown').classList.add('hidden');
+                populateScreen2();
+                switchScreen(2);
+            } else {
+                showToast("No student found with that exact first name.", true);
+            }
+        }
+
+        function populateScreen2() {
+            document.getElementById('disp-school').innerText = currentStudent["Institution"] || "N/A";
+            document.getElementById('disp-name').innerText = currentStudent["Student Name"] || "N/A";
+            document.getElementById('disp-class').innerText = currentStudent["Appearing Fine Arts Class"] || "N/A";
+            document.getElementById('disp-mobile').innerText = maskMobile(currentStudent["Mobile (WhatsApp)"]);
+
+            let photoImg = document.getElementById('disp-student-photo');
+            let photoPlaceholder = document.getElementById('photo-placeholder');
+            let photoUrl = currentStudent["Passport Photo URL"] || "";
+
+            if (photoUrl && photoUrl.trim() !== '') {
+                photoImg.src = photoUrl;
+                photoImg.classList.remove('hidden');
+                photoPlaceholder.classList.add('hidden');
+            } else {
+                photoImg.src = '';
+                photoImg.classList.add('hidden');
+                photoPlaceholder.classList.remove('hidden');
+            }
+
+            // Populate Payment History
+            renderStudentTransactionHistory();
+
+            // Reset payment proof state
+            uploadedProofBase64 = null;
+            document.getElementById('payment-proof-input').value = "";
+            document.getElementById('proof-file-label').innerText = "Tap to select screenshot image";
+            document.getElementById('proof-preview-container').classList.add('hidden');
+            updateGenerateButtonState();
+
+            setMonths(1);
+        }
+
+        function renderStudentTransactionHistory() {
+            let studentNameTrimmed = (currentStudent["Student Name"] || "").trim().toLowerCase();
+            let studentTransactions = transactionsData.filter(tx => {
+                let txName = (tx["Student Name"] || "").trim().toLowerCase();
+                return txName === studentNameTrimmed;
+            });
+
+            let historyCard = document.getElementById('payment-history-card');
+            let historyList = document.getElementById('transaction-history-list');
+            let lastPaymentLabel = document.getElementById('last-payment-date');
+
+            historyList.innerHTML = "";
+
+            if (studentTransactions.length > 0) {
+                historyCard.classList.remove('hidden');
+                
+                // Sort transactions newest to oldest
+                studentTransactions.sort((a, b) => new Date(b["Timestamp"] || 0) - new Date(a["Timestamp"] || 0));
+
+                let rawLastDate = studentTransactions[0]["Timestamp"] || "";
+                let formattedLastDate = rawLastDate ? formatUserFriendlyDate(rawLastDate) : "N/A";
+                lastPaymentLabel.innerText = `Last Paid: ${formattedLastDate}`;
+
+                studentTransactions.forEach(tx => {
+                    let txDateFormatted = tx["Timestamp"] ? formatUserFriendlyDate(tx["Timestamp"]) : "";
+                    let row = document.createElement('div');
+                    row.className = "bg-iosBg p-2.5 rounded-xl border border-iosBorder flex justify-between items-center text-[11px]";
+                    row.innerHTML = `
+                        <div>
+                            <span class="font-bold text-iosText">${tx["Months Paid"] || 1} Month(s) - ₹${tx["Total Amount (INR)"] || tx["Total Amount"] || 700}</span>
+                            <p class="text-[10px] text-iosGray">${txDateFormatted} • ${tx["Receipt ID"] || "N/A"}</p>
+                        </div>
+                        <span class="px-2 py-0.5 bg-iosGreen/10 text-iosGreen font-bold rounded text-[10px]">Paid</span>
+                    `;
+                    historyList.appendChild(row);
+                });
+            } else {
+                historyCard.classList.remove('hidden');
+                lastPaymentLabel.innerText = "Last Paid: No Prior Records";
+                let emptyRow = document.createElement('div');
+                emptyRow.className = "text-center py-2 text-iosGray text-[11px]";
+                emptyRow.innerText = "No prior online transaction history found in sheet.";
+                historyList.appendChild(emptyRow);
+            }
+        }
+
+        function setMonths(months) {
+            selectedMonthsCount = months;
+            
+            document.querySelectorAll('.month-btn').forEach(btn => {
+                let m = parseInt(btn.getAttribute('data-month'));
+                if (m === months) {
+                    btn.className = "month-btn py-2 rounded-xl font-bold text-xs bg-iosGreen text-white shadow-sm transition-all";
+                } else {
+                    btn.className = "month-btn py-2 rounded-xl font-bold text-xs bg-iosBg text-iosText border border-iosBorder transition-all";
+                }
+            });
+
+            document.getElementById('summary-months').innerText = `${months} Month${months > 1 ? 's' : ''}`;
+            let totalAmount = months * 700;
+            document.getElementById('summary-total').innerText = `₹${totalAmount}`;
+
+            let formattedName = (currentStudent["Student Name"] || "Student").replace(/\s+/g, '_');
+            let remarks = `${formattedName}_SPVPAS_Monthly_Fee`;
+            document.getElementById('upi-remark-preview').innerText = remarks;
+
+            let upiLink = `upi://pay?pa=sdarpan128@oksbi&am=${totalAmount}&tn=${encodeURIComponent(remarks)}`;
+            document.getElementById('upi-pay-link').setAttribute('href', upiLink);
+
+            let qrContainer = document.getElementById('qrcode-box');
+            qrContainer.innerHTML = "";
+            new QRCode(qrContainer, {
+                text: upiLink,
+                width: 140,
+                height: 140,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        function handleProofUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedProofBase64 = e.target.result;
+                document.getElementById('proof-file-label').innerText = file.name;
+                document.getElementById('proof-preview-img').src = uploadedProofBase64;
+                document.getElementById('proof-preview-container').classList.remove('hidden');
+                updateGenerateButtonState();
+                showToast("Payment proof attached successfully!");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeProof(event) {
+            event.stopPropagation();
+            uploadedProofBase64 = null;
+            document.getElementById('payment-proof-input').value = "";
+            document.getElementById('proof-file-label').innerText = "Tap to select screenshot image";
+            document.getElementById('proof-preview-container').classList.add('hidden');
+            updateGenerateButtonState();
+        }
+
+        function updateGenerateButtonState() {
+            const btn = document.getElementById('generate-receipt-btn');
+            if (uploadedProofBase64) {
+                btn.removeAttribute('disabled');
+                btn.className = "w-full bg-iosGreen text-white font-semibold py-3.5 rounded-xl active:scale-95 transition-transform shadow-lg shadow-iosGreen/25 mb-3 text-sm flex items-center justify-center space-x-2 cursor-pointer";
+                btn.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>I Have Paid - Generate Receipt</span>`;
+            } else {
+                btn.setAttribute('disabled', 'true');
+                btn.className = "w-full bg-gray-300 text-gray-500 font-semibold py-3.5 rounded-xl transition-all shadow-sm mb-3 text-sm flex items-center justify-center space-x-2 cursor-not-allowed";
+                btn.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>Upload Proof to Generate Receipt</span>`;
+            }
+        }
+
+        function confirmPaymentAndGenerateReceipt() {
+            if (!uploadedProofBase64) {
+                showToast("Please upload payment proof before generating receipt.", true);
+                return;
+            }
+
+            generatedReceiptId = 'SPV-' + Math.floor(100000 + Math.random() * 900000);
+            let depositDateStr = formatUserFriendlyDate(new Date());
+
+            document.getElementById('rec-id').innerText = generatedReceiptId;
+            document.getElementById('rec-date').innerText = depositDateStr;
+            document.getElementById('rec-school').innerText = currentStudent["Institution"];
+            document.getElementById('rec-name').innerText = currentStudent["Student Name"];
+            document.getElementById('rec-class-mob').innerText = `Class ${currentStudent["Appearing Fine Arts Class"]} | Mob: ${maskMobile(currentStudent["Mobile (WhatsApp)"])}`;
+            document.getElementById('rec-months').innerText = `${selectedMonthsCount} Month(s)`;
+            document.getElementById('rec-total').innerText = `₹${selectedMonthsCount * 700}`;
+
+            document.getElementById('screen-rec-id').innerText = generatedReceiptId;
+            document.getElementById('screen-rec-date').innerText = depositDateStr;
+            document.getElementById('screen-rec-school').innerText = currentStudent["Institution"];
+            document.getElementById('screen-rec-name').innerText = currentStudent["Student Name"];
+            document.getElementById('screen-rec-class-mob').innerText = `Class ${currentStudent["Appearing Fine Arts Class"]} | Mob: ${maskMobile(currentStudent["Mobile (WhatsApp)"])}`;
+            document.getElementById('screen-rec-months').innerText = `${selectedMonthsCount} Month(s)`;
+            document.getElementById('screen-rec-total').innerText = `₹${selectedMonthsCount * 700}`;
+
+            // Send transaction data to Google Sheet via Apps Script Web App
+            saveTransactionToSheet();
+
+            switchScreen(3);
+            showToast("Receipt generated & logged successfully!");
+        }
+
+        function saveTransactionToSheet() {
+            let payload = {
+                receiptId: generatedReceiptId,
+                institution: currentStudent["Institution"],
+                studentName: currentStudent["Student Name"],
+                studentClass: currentStudent["Appearing Fine Arts Class"],
+                mobile: currentStudent["Mobile (WhatsApp)"],
+                monthsCount: selectedMonthsCount,
+                totalAmount: selectedMonthsCount * 700
+            };
+
+            fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            }).catch(err => {
+                console.error("Error saving transaction to sheet:", err);
+            });
+        }
+
+        function startAnotherTransaction() {
+            populateScreen2();
+            switchScreen(2);
+            showToast("Ready for next transaction!");
+        }
+
+        function resetToHome() {
+            currentStudent = null;
+            document.getElementById('search-query').value = "";
+            switchScreen(1);
+        }
+
+        function downloadReceiptImage() {
+            let printableArea = document.getElementById('receipt-printable-area');
+            printableArea.classList.remove('hidden');
+
+            html2canvas(printableArea, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#FFFFFF'
+            }).then(canvas => {
+                printableArea.classList.add('hidden');
+                
+                let imageURL = canvas.toDataURL("image/png");
+                let downloadLink = document.createElement('a');
+                downloadLink.href = imageURL;
+                downloadLink.download = `Receipt_${generatedReceiptId}_${currentStudent["Student Name"].replace(/\s+/g, '_')}.png`;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+
+                showToast("Receipt image downloaded successfully!");
+            }).catch(err => {
+                printableArea.classList.add('hidden');
+                showToast("Error generating image receipt.", true);
+            });
+        }
+    </script>
+</body>
+</html>
