@@ -447,10 +447,16 @@
 
         async function loadSheetData() {
             try {
-                // Fetch Students Database
+                // Fetch Students Database and filter exclusively for South Point Visual & Performing Arts School
                 const resStudents = await fetch(STUDENTS_CSV_URL);
                 const csvStudentsText = await resStudents.text();
-                studentsData = parseCSV(csvStudentsText);
+                let allStudents = parseCSV(csvStudentsText);
+                
+                // Filter only South Point Visual & Performing Arts School students
+                studentsData = allStudents.filter(st => {
+                    let inst = (st["Institution"] || "").trim().toLowerCase();
+                    return inst.includes("south point visual") || inst.includes("south point");
+                });
 
                 // Fetch Transactions Database
                 const resTx = await fetch(TRANSACTIONS_CSV_URL);
@@ -581,7 +587,7 @@
                 populateScreen2();
                 switchScreen(2);
             } else {
-                showToast("No student found. Please check the name.", true);
+                showToast("No student found from South Point Visual & Performing Arts School.", true);
             }
         }
 
